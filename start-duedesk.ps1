@@ -1,8 +1,11 @@
-# DueDesk Application Launcher
-# This script starts both the backend API server and the React frontend
+# Enhanced DueDesk Application Launcher
+# This script provides options to start backend, frontend, database explorer, or all services
 
-Write-Host "Starting DueDesk Application..." -ForegroundColor Green
-Write-Host "Current directory: $PWD" -ForegroundColor Yellow
+Write-Host "" -ForegroundColor White
+Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host "     🚀 Welcome to DueDesk Enhanced!" -ForegroundColor Green
+Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor White
 
 # Function to check if a port is in use
 function Test-Port {
@@ -18,53 +21,164 @@ function Test-Port {
     }
 }
 
-# Check if backend port (4000) is already in use
+# Function to check database
+function Test-Database {
+    $dbPath = "E:\GenAI\Userstory\duedesk-backend\customers.db"
+    if (Test-Path $dbPath) {
+        Write-Host "✓ Database found: $dbPath" -ForegroundColor Green
+        return $true
+    } else {
+        Write-Host "⚠ Database not found: $dbPath" -ForegroundColor Yellow
+        Write-Host "  Database will be created when backend starts." -ForegroundColor Gray
+        return $false
+    }
+}
+
+# Function to start backend
+function Start-Backend {
+    Write-Host "`n🔧 Starting Backend Server..." -ForegroundColor Blue
+    $backendProcess = Start-Process powershell -ArgumentList "-NoExit", "-Command", "& 'E:\GenAI\Userstory\start-backend.bat'" -PassThru
+    Start-Sleep -Seconds 2
+    Write-Host "✓ Backend server started on http://localhost:4000" -ForegroundColor Green
+    return $backendProcess
+}
+
+# Function to start frontend
+function Start-Frontend {
+    Write-Host "`n🎨 Starting Frontend Dashboard..." -ForegroundColor Blue
+    $frontendProcess = Start-Process powershell -ArgumentList "-NoExit", "-Command", "& 'E:\GenAI\Userstory\start-frontend.bat'" -PassThru
+    Start-Sleep -Seconds 2
+    Write-Host "✓ Frontend dashboard started on http://localhost:3000" -ForegroundColor Green
+    return $frontendProcess
+}
+
+# Function to open database explorer
+function Start-DatabaseExplorer {
+    Write-Host "`n🗄️ Opening Database Explorer..." -ForegroundColor Blue
+    Start-Process cmd -ArgumentList "/k", "E:\GenAI\Userstory\explore-database.bat"
+    Write-Host "✓ Database explorer opened" -ForegroundColor Green
+}
+
+# Check system status
+Write-Host "System Status Check:" -ForegroundColor White
 if (Test-Port 4000) {
-    Write-Host "WARNING: Port 4000 is already in use. Backend might already be running." -ForegroundColor Yellow
-    Write-Host "         You can check by visiting: http://localhost:4000/api/health" -ForegroundColor Cyan
+    Write-Host "⚠ Port 4000 is already in use. Backend might be running." -ForegroundColor Yellow
+    Write-Host "  Check: http://localhost:4000/api/health" -ForegroundColor Cyan
 } else {
-    Write-Host "Port 4000 is available for backend" -ForegroundColor Green
+    Write-Host "✓ Port 4000 is available for backend" -ForegroundColor Green
 }
 
-# Check if frontend port (3000) is already in use
 if (Test-Port 3000) {
-    Write-Host "WARNING: Port 3000 is already in use. Frontend might already be running." -ForegroundColor Yellow
-    Write-Host "         You can check by visiting: http://localhost:3000" -ForegroundColor Cyan
+    Write-Host "⚠ Port 3000 is already in use. Frontend might be running." -ForegroundColor Yellow
+    Write-Host "  Check: http://localhost:3000" -ForegroundColor Cyan
 } else {
-    Write-Host "Port 3000 is available for frontend" -ForegroundColor Green
+    Write-Host "✓ Port 3000 is available for frontend" -ForegroundColor Green
 }
 
-Write-Host "`nStarting Backend Server (Port 4000)..." -ForegroundColor Blue
+Test-Database | Out-Null
 
-# Start backend server in a new PowerShell window
-$backendProcess = Start-Process powershell -ArgumentList "-NoExit", "-Command", "Set-Location 'E:\GenAI\Userstory\duedesk-backend'; Write-Host 'Starting DueDesk Backend...' -ForegroundColor Green; npm start" -PassThru
+# Menu system
+do {
+    Write-Host "`n==========================================" -ForegroundColor Cyan
+    Write-Host "Choose your option:" -ForegroundColor White
+    Write-Host "" -ForegroundColor White
+    Write-Host "[1] Start Backend Server Only" -ForegroundColor Yellow
+    Write-Host "[2] Start Frontend Dashboard Only" -ForegroundColor Yellow
+    Write-Host "[3] Start Both Backend + Frontend" -ForegroundColor Yellow
+    Write-Host "[4] Open Database Explorer" -ForegroundColor Yellow
+    Write-Host "[5] Start Everything (Backend + Frontend + DB Explorer)" -ForegroundColor Yellow
+    Write-Host "[6] Check System Status" -ForegroundColor Yellow
+    Write-Host "[Q] Quit" -ForegroundColor Red
+    Write-Host "" -ForegroundColor White
+    
+    $choice = Read-Host "Enter your choice (1-6 or Q)"
+    
+    switch ($choice.ToUpper()) {
+        "1" {
+            $backendProcess = Start-Backend
+            Write-Host "`n✅ Backend service started!" -ForegroundColor Green
+            Write-Host "Backend API: http://localhost:4000" -ForegroundColor Cyan
+            Write-Host "Health Check: http://localhost:4000/api/health" -ForegroundColor Cyan
+            Write-Host "Process ID: $($backendProcess.Id)" -ForegroundColor Gray
+            break
+        }
+        "2" {
+            $frontendProcess = Start-Frontend
+            Write-Host "`n✅ Frontend service started!" -ForegroundColor Green
+            Write-Host "Frontend Dashboard: http://localhost:3000" -ForegroundColor Cyan
+            Write-Host "Process ID: $($frontendProcess.Id)" -ForegroundColor Gray
+            break
+        }
+        "3" {
+            $backendProcess = Start-Backend
+            Start-Sleep -Seconds 3
+            $frontendProcess = Start-Frontend
+            
+            Write-Host "`n✅ Both services started!" -ForegroundColor Green
+            Write-Host "Backend API: http://localhost:4000" -ForegroundColor Cyan
+            Write-Host "Frontend Dashboard: http://localhost:3000" -ForegroundColor Cyan
+            Write-Host "Backend PID: $($backendProcess.Id)" -ForegroundColor Gray
+            Write-Host "Frontend PID: $($frontendProcess.Id)" -ForegroundColor Gray
+            break
+        }
+        "4" {
+            Start-DatabaseExplorer
+            Write-Host "`n✅ Database explorer opened!" -ForegroundColor Green
+            Write-Host "Available tables: customers, transaction_history, payment_cycles" -ForegroundColor Cyan
+            break
+        }
+        "5" {
+            $backendProcess = Start-Backend
+            Start-Sleep -Seconds 3
+            $frontendProcess = Start-Frontend
+            Start-Sleep -Seconds 2
+            Start-DatabaseExplorer
+            
+            Write-Host "`n✅ All services started!" -ForegroundColor Green
+            Write-Host "Backend API: http://localhost:4000" -ForegroundColor Cyan
+            Write-Host "Frontend Dashboard: http://localhost:3000" -ForegroundColor Cyan
+            Write-Host "Database: SQLite Explorer" -ForegroundColor Cyan
+            Write-Host "Backend PID: $($backendProcess.Id)" -ForegroundColor Gray
+            Write-Host "Frontend PID: $($frontendProcess.Id)" -ForegroundColor Gray
+            break
+        }
+        "6" {
+            Write-Host "`n🔍 Checking System Status..." -ForegroundColor Blue
+            if (Test-Port 4000) {
+                Write-Host "Backend: RUNNING on port 4000" -ForegroundColor Green
+            } else {
+                Write-Host "Backend: NOT RUNNING" -ForegroundColor Red
+            }
+            
+            if (Test-Port 3000) {
+                Write-Host "Frontend: RUNNING on port 3000" -ForegroundColor Green
+            } else {
+                Write-Host "Frontend: NOT RUNNING" -ForegroundColor Red
+            }
+            
+            Test-Database | Out-Null
+            continue
+        }
+        "Q" {
+            Write-Host "`n👋 Goodbye!" -ForegroundColor Green
+            exit
+        }
+        default {
+            Write-Host "`n❌ Invalid choice. Please try again." -ForegroundColor Red
+            continue
+        }
+    }
+    
+    Write-Host "`n==========================================" -ForegroundColor Cyan
+    Write-Host "Services have been started in separate windows." -ForegroundColor White
+    Write-Host "Close those windows to stop the services." -ForegroundColor Gray
+    Write-Host "" -ForegroundColor White
+    
+    $continue = Read-Host "Start more services? (y/n)"
+    if ($continue.ToLower() -ne "y") {
+        break
+    }
+} while ($true)
 
-# Wait a moment for backend to start
-Start-Sleep -Seconds 3
-
-Write-Host "Starting Frontend Dashboard (Port 3000)..." -ForegroundColor Blue
-
-# Start frontend in a new PowerShell window
-$frontendProcess = Start-Process powershell -ArgumentList "-NoExit", "-Command", "Set-Location 'E:\GenAI\Userstory\duedesk-dashboard'; Write-Host 'Starting DueDesk Dashboard...' -ForegroundColor Green; npm start" -PassThru
-
-# Wait a moment for everything to initialize
-Start-Sleep -Seconds 5
-
-Write-Host "`nDueDesk Application is starting up!" -ForegroundColor Green
-Write-Host "Backend API: http://localhost:4000" -ForegroundColor Cyan
-Write-Host "Frontend Dashboard: http://localhost:3000" -ForegroundColor Cyan
-Write-Host "API Health Check: http://localhost:4000/api/health" -ForegroundColor Cyan
-
-Write-Host "`nApplication Info:" -ForegroundColor White
-Write-Host "  Backend PID: $($backendProcess.Id)" -ForegroundColor Gray
-Write-Host "  Frontend PID: $($frontendProcess.Id)" -ForegroundColor Gray
-Write-Host "  Both servers are running in separate windows" -ForegroundColor Gray
-Write-Host "  Close those windows to stop the servers" -ForegroundColor Gray
-
-Write-Host "`nThe dashboard should automatically open in your browser shortly..." -ForegroundColor Green
-Write-Host "Press any key to exit this launcher (servers will continue running)..." -ForegroundColor Yellow
-
-# Wait for user input
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-
-Write-Host "`nLauncher closing. Your DueDesk application is still running!" -ForegroundColor Green
+Write-Host "`n🎉 DueDesk Enhanced is ready to use!" -ForegroundColor Green
+Write-Host "Thank you for using DueDesk!" -ForegroundColor Cyan

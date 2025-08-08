@@ -1,0 +1,27 @@
+services:
+  # Backend API Service
+  - type: web
+    name: duedesk-backend
+    env: node
+    plan: free
+    buildCommand: cd duedesk-backend && npm install
+    startCommand: cd duedesk-backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: duedesk-frontend
+    env: static
+    plan: free
+    buildCommand: cd duedesk-dashboard && npm install && REACT_APP_API_URL=$REACT_APP_API_URL npm run build
+    staticPublishPath: duedesk-dashboard/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://duedesk-backend.onrender.com
