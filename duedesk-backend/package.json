@@ -19,6 +19,10 @@
   "author": "DueDesk Team",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^2.2.0",

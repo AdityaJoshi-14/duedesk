@@ -78,18 +78,6 @@ duedesk/
 
 ## 🚀 Deployment
 
-### Railway (Recommended - Easy Setup)
-
-1. **Quick Start**
-   - Sign up at https://railway.app with GitHub
-   - Create new project from your GitHub repo
-   - Deploy backend: Set root directory to `duedesk-backend`
-   - Deploy frontend: Set root directory to `duedesk-dashboard`
-   - Add environment variables (see RAILWAY_DEPLOYMENT.md)
-
-2. **Detailed Guide**: See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
-
-
 ### Render (Recommended)
 
 1. **Connect GitHub Repository**

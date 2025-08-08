@@ -4,17 +4,7 @@
   "description": "DueDesk Payment Management Dashboard - Modern React TypeScript frontend for customer payment processing",
   "homepage": "http://localhost:3000",
   "private": true,
-  "engines": {
-    "node": "18.x",
-    "npm": "9.x"
-  },
-  "keywords": [
-    "react",
-    "typescript",
-    "payment-dashboard",
-    "customer-management",
-    "frontend"
-  ],
+  "keywords": ["react", "typescript", "payment-dashboard", "customer-management", "frontend"],
   "author": "DueDesk Team",
   "dependencies": {
     "@types/node": "^16.18.126",
@@ -23,7 +13,6 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-scripts": "5.0.1",
-    "serve": "^14.2.4",
     "typescript": "^4.9.5"
   },
   "scripts": {
